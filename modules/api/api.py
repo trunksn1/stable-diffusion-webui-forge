@@ -678,6 +678,10 @@ class Api:
 
         for k, v in req.items():
             shared.opts.set(k, v, is_api=True)
+            
+        # this line is to be added:
+        from modules_forge import main_entry
+        main_entry.checkpoint_change(checkpoint_name)
 
         shared.opts.save(shared.config_filename)
         return

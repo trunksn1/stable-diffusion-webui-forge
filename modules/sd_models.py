@@ -421,9 +421,12 @@ def send_model_to_cpu(m):
 def model_target_device(m):
     return devices.device
 
-
+# changed from here 
+#https://github.com/lllyasviel/stable-diffusion-webui-forge/discussions/1026
 def send_model_to_device(m):
-    pass
+    from modules_forge import main_entry
+    main_entry.refresh_model_loading_parameters()
+    return
 
 
 def send_model_to_trash(m):
