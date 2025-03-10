@@ -204,15 +204,13 @@ def load_lora(lora, to_load):
             patch_dict["{}.bias".format(to_load[x][:-len(".weight")])] = ("diff", (diff_bias,))
             loaded_keys.add(diff_bias_name)
 
-<<<<<<< HEAD
-=======
+
         set_weight_name = "{}.set_weight".format(x)
         set_weight = lora.get(set_weight_name, None)
         if set_weight is not None:
             patch_dict[to_load[x]] = ("set", (set_weight,))
             loaded_keys.add(set_weight_name)
 
->>>>>>> upstream/main
     remaining_dict = {x: y for x, y in lora.items() if x not in loaded_keys}
     return patch_dict, remaining_dict
 
