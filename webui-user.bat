@@ -6,13 +6,8 @@ set VENV_DIR=
 set COMMANDLINE_ARGS=
 
 @REM Uncomment following code to reference an existing A1111 checkout.
-@REM set A1111_HOME=Your A1111 checkout dir
-@REM
-@REM set VENV_DIR=%A1111_HOME%/venv
-@REM set COMMANDLINE_ARGS=%COMMANDLINE_ARGS% ^
-@REM  --ckpt-dir %A1111_HOME%/models/Stable-diffusion ^
-@REM  --hypernetwork-dir %A1111_HOME%/models/hypernetworks ^
-@REM  --embeddings-dir %A1111_HOME%/embeddings ^
-@REM  --lora-dir %A1111_HOME%/models/Lora
+set A1111_HOME=N:/SD/Forge_Adetailer-CNet/webui
+@REM set VENV_DIR=%A1111_HOME%/venv/
+set COMMANDLINE_ARGS=--api --forge-ref-a1111-home %A1111_HOME% --esrgan-models-path N:/SD/Modelli/ESRGAN --embeddings-dir N:/SD/Modelli/embeddings --opt-sdp-attention --ckpt-dir N:/SD/Modelli/Checkpoints  --lora-dir N:/SD/Modelli/Lora --vae-dir N:/SD/Modelli/VAE --skip-torch-cuda-test
 
 call webui.bat
