@@ -54,4 +54,3 @@ class ScriptPostprocessingFocalCrop(scripts_postprocessing.ScriptPostprocessing)
         pp.image = result
         pp.extra_images = [pp.create_copy(x, nametags=["focal-crop-debug"], disable_processing=True) for x in others]
 
->>>>>>> upstream/main
