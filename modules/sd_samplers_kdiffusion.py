@@ -27,6 +27,10 @@ samplers_k_diffusion = [
     ('DPM fast', 'sample_dpm_fast', ['k_dpm_fast'], {"uses_ensd": True}),
     ('DPM adaptive', 'sample_dpm_adaptive', ['k_dpm_ad'], {"uses_ensd": True}),
     ('Restart', sd_samplers_extra.restart_sampler, ['restart'], {'scheduler': 'karras', "second_order": True}),
+    ('HeunPP2', 'sample_heunpp2', ['heunpp2'], {}),
+    ('IPNDM', 'sample_ipndm', ['ipndm'], {}),
+    ('IPNDM_V', 'sample_ipndm_v', ['ipndm_v'], {}),
+    ('DEIS', 'sample_deis', ['deis'], {}),
 ]
 
 
@@ -139,7 +143,8 @@ class KDiffusionSampler(sd_samplers_common.Sampler):
         sigma_sched = sigmas[steps - t_enc - 1:]
 
         x = x.to(noise)
-        xi = x + noise * sigma_sched[0]
+
+        xi = self.model_wrap.predictor.noise_scaling(sigma_sched[0], noise, x, max_denoise=False)
 
         if opts.img2img_extra_noise > 0:
             p.extra_generation_params["Extra noise"] = opts.img2img_extra_noise
@@ -198,9 +203,8 @@ class KDiffusionSampler(sd_samplers_common.Sampler):
 
         if opts.sgm_noise_multiplier:
             p.extra_generation_params["SGM noise multiplier"] = True
-            x = x * torch.sqrt(1.0 + sigmas[0] ** 2.0)
-        else:
-            x = x * sigmas[0]
+
+        x = self.model_wrap.predictor.noise_scaling(sigmas[0], x, torch.zeros_like(x), max_denoise=opts.sgm_noise_multiplier)
 
         extra_params_kwargs = self.initialize(p)
         parameters = inspect.signature(self.func).parameters

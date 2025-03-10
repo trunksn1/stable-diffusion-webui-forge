@@ -13,7 +13,7 @@ from backend import memory_management
 
 
 class Flux(ForgeDiffusionEngine):
-    matched_guesses = [model_list.Flux]
+    matched_guesses = [model_list.Flux, model_list.FluxSchnell]
 
     def __init__(self, estimated_config, huggingface_components):
         super().__init__(estimated_config, huggingface_components)
@@ -32,10 +32,24 @@ class Flux(ForgeDiffusionEngine):
 
         vae = VAE(model=huggingface_components['vae'])
 
+        if 'schnell' in estimated_config.huggingface_repo.lower():
+            k_predictor = PredictionFlux(
+                mu=1.0
+            )
+        else:
+            k_predictor = PredictionFlux(
+                seq_len=4096,
+                base_seq_len=256,
+                max_seq_len=4096,
+                base_shift=0.5,
+                max_shift=1.15,
+            )
+            self.use_distilled_cfg_scale = True
+
         unet = UnetPatcher.from_model(
             model=huggingface_components['transformer'],
             diffusers_scheduler=None,
-            k_predictor=PredictionFlux(sigma_data=1.0, prediction_type='const', shift=1.15, timesteps=10000),
+            k_predictor=k_predictor,
             config=estimated_config
         )
 
@@ -63,8 +77,6 @@ class Flux(ForgeDiffusionEngine):
         self.forge_objects_original = self.forge_objects.shallow_copy()
         self.forge_objects_after_applying_lora = self.forge_objects.shallow_copy()
 
-        self.use_distilled_cfg_scale = True
-
     def set_clip_skip(self, clip_skip):
         self.text_processing_engine_l.clip_skip = clip_skip
 
@@ -73,15 +85,14 @@ class Flux(ForgeDiffusionEngine):
         memory_management.load_model_gpu(self.forge_objects.clip.patcher)
         cond_l, pooled_l = self.text_processing_engine_l(prompt)
         cond_t5 = self.text_processing_engine_t5(prompt)
+        cond = dict(crossattn=cond_t5, vector=pooled_l)
 
-        distilled_cfg_scale = getattr(prompt, 'distilled_cfg_scale', 3.5) or 3.5
-        print(f'distilled_cfg_scale = {distilled_cfg_scale}')
-
-        cond = dict(
-            crossattn=cond_t5,
-            vector=pooled_l,
-            guidance=torch.FloatTensor([distilled_cfg_scale] * len(prompt))
-        )
+        if self.use_distilled_cfg_scale:
+            distilled_cfg_scale = getattr(prompt, 'distilled_cfg_scale', 3.5) or 3.5
+            cond['guidance'] = torch.FloatTensor([distilled_cfg_scale] * len(prompt))
+            print(f'Distilled CFG Scale: {distilled_cfg_scale}')
+        else:
+            print('Distilled CFG Scale will be ignored for Schnell')
 
         return cond
 

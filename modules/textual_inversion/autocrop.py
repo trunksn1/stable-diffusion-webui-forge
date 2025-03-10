@@ -343,3 +343,4 @@ class Settings:
         self.annotate_image = annotate_image
         self.destop_view_image = False
         self.dnn_model_path = dnn_model_path
+>>>>>>> upstream/main
