@@ -291,13 +291,7 @@ def model_lora_keys_unet(model, key_map={}):
     sdk = sd.keys()
 
     for k in sdk:
-<<<<<<< HEAD
-        if k.startswith("diffusion_model.") and k.endswith(".weight"):
-            key_lora = k[len("diffusion_model."):-len(".weight")].replace(".", "_")
-            key_map["lora_unet_{}".format(key_lora)] = k
-            key_map["lora_prior_unet_{}".format(key_lora)] = k #cascade lora: TODO put lora key prefix in the model config
-            key_map["{}".format(k[:-len(".weight")])] = k #generic lora format without any weird key names
-=======
+
         if k.startswith("diffusion_model."):
             if k.endswith(".weight"):
                 key_lora = k[len("diffusion_model."):-len(".weight")].replace(".", "_")
@@ -305,7 +299,7 @@ def model_lora_keys_unet(model, key_map={}):
                 key_map["{}".format(k[:-len(".weight")])] = k #generic lora format without any weird key names
             else:
                 key_map["{}".format(k)] = k #generic lora format for not .weight without any weird key names
->>>>>>> upstream/main
+
 
     diffusers_keys = utils.unet_to_diffusers(model.diffusion_model.config)
     for k in diffusers_keys:
@@ -313,12 +307,10 @@ def model_lora_keys_unet(model, key_map={}):
             unet_key = "diffusion_model.{}".format(diffusers_keys[k])
             key_lora = k[:-len(".weight")].replace(".", "_")
             key_map["lora_unet_{}".format(key_lora)] = unet_key
-<<<<<<< HEAD
 
-=======
             key_map["lycoris_{}".format(key_lora)] = unet_key #simpletuner lycoris format
             
->>>>>>> upstream/main
+
             diffusers_lora_prefix = ["", "unet."]
             for p in diffusers_lora_prefix:
                 diffusers_lora_key = "{}{}".format(p, k[:-len(".weight")].replace(".to_", ".processor.to_"))
@@ -326,21 +318,7 @@ def model_lora_keys_unet(model, key_map={}):
                     diffusers_lora_key = diffusers_lora_key[:-2]
                 key_map[diffusers_lora_key] = unet_key
 
-<<<<<<< HEAD
-    # if isinstance(model, comfy.model_base.SD3): #Diffusers lora SD3
-    #     diffusers_keys = utils.mmdit_to_diffusers(model.diffusion_model.config, output_prefix="diffusion_model.")
-    #     for k in diffusers_keys:
-    #         if k.endswith(".weight"):
-    #             to = diffusers_keys[k]
-    #             key_lora = "transformer.{}".format(k[:-len(".weight")]) #regular diffusers sd3 lora format
-    #             key_map[key_lora] = to
-    #
-    #             key_lora = "base_model.model.{}".format(k[:-len(".weight")]) #format for flash-sd3 lora and others?
-    #             key_map[key_lora] = to
-    #
-    #             key_lora = "lora_transformer_{}".format(k[:-len(".weight")].replace(".", "_")) #OneTrainer lora
-    #             key_map[key_lora] = to
-=======
+
     # if 'stable-diffusion-3' in model.config.huggingface_repo.lower(): #Diffusers lora SD3
         # diffusers_keys = utils.mmdit_to_diffusers(model.diffusion_model.config, output_prefix="diffusion_model.")
         # for k in diffusers_keys:
@@ -354,7 +332,7 @@ def model_lora_keys_unet(model, key_map={}):
     
                 # key_lora = "lora_transformer_{}".format(k[:-len(".weight")].replace(".", "_")) #OneTrainer lora
                 # key_map[key_lora] = to
->>>>>>> upstream/main
+
     #
     # if isinstance(model, comfy.model_base.AuraFlow): #Diffusers lora AuraFlow
     #     diffusers_keys = utils.auraflow_to_diffusers(model.diffusion_model.config, output_prefix="diffusion_model.")
